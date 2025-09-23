@@ -1,68 +1,122 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
+/* Terminal-inspired styling */
 body {
+  background-color: #000000;
+  color: #00ff41;
+  font-family: 'Courier New', 'Monaco', 'Menlo', monospace;
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
+  padding: 20px;
   min-height: 100vh;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+.main-title {
+  color: #00ff41;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #1a4d1a;
+  padding-bottom: 10px;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
+
+
+/* File input styling */
+input[type="file"] {
+  background-color: #000000;
+  color: #00ff41;
+  border: 1px solid #1a4d1a;
+  padding: 8px 12px;
   font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  font-size: 14px;
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 15px;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+input[type="file"]::-webkit-file-upload-button {
+  background-color: #1a4d1a;
+  color: #000000;
+  border: none;
+  padding: 6px 12px;
+  margin-right: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+input[type="file"]::-webkit-file-upload-button:hover {
+  background-color: #00ff41;
+}
+
+/* Firefox file input button */
+input[type="file"]::file-selector-button {
+  background-color: #1a4d1a;
+  color: #000000;
+  border: none;
+  padding: 6px 12px;
+  margin-right: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+input[type="file"]::file-selector-button:hover {
+  background-color: #00ff41;
+}
+
+/* Image styling with expansion animation */
+img {
+  border: 1px solid #1a4d1a !important;
+  box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+  background-color: #111111;
+  padding: 4px;
+  display: block;
+  margin: 20px auto;
+  max-width: 90vw !important;
+  max-height: 70vh !important;
+  animation: imageExpand 1.5s ease-out;
+  transition: all 0.3s ease;
+}
+
+/* Image expansion animation */
+@keyframes imageExpand {
+  0% {
+    max-width: 100px;
+    max-height: 100px;
+    opacity: 0;
+    transform: scale(0.3);
   }
-  a:hover {
-    color: #747bff;
+  50% {
+    opacity: 0.7;
   }
-  button {
-    background-color: #f9f9f9;
+  100% {
+    max-width: 90vw;
+    max-height: 70vh;
+    opacity: 1;
+    transform: scale(1);
   }
+}
+
+/* Container styling */
+div {
+  position: relative;
+}
+
+/* Add some terminal-like decorative elements */
+.main-title::after {
+  content: ' [ACTIVE]';
+  color: #00cc33;
+  font-size: 12px;
+  font-weight: normal;
+}
+
+/* Optional: Add a terminal cursor effect */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* You can add this class to any element for a blinking cursor effect */
+.terminal-cursor::after {
+  content: '_';
+  animation: blink 1s infinite;
 }
