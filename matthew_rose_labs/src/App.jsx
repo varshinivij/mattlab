@@ -16,18 +16,26 @@ function App() {
   const handleUpload = async (file) => {
     const formData = new FormData();
     formData.append('file', file);
+
     try {
       const result = await fetch('http://localhost:5173/matthew_rose_labs', {
         method: 'POST',
         body: formData,
       });
 
-      const data = await result.json();
-      setStatus('Completed');
+      if (!result.ok) {
+        throw new Error(`Server error: ${result.status}`);
+      }
+
+      const data = await result.json().catch(() => null); // fallback if not JSON
+      console.log("Upload success:", data);
+      setStatus('Completed ');
     } catch (error) {
+      console.error("Upload failed:", error);
       setStatus('Error');
     }
   };
+
 
   return (
     <div>
