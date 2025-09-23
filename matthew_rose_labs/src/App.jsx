@@ -17,7 +17,7 @@ function App() {
     const formData = new FormData();
     formData.append('file', file);
     try {
-      const result = await fetch('http://localhost:5000/matthew_rose_labs', {
+      const result = await fetch('http://localhost:5173/matthew_rose_labs', {
         method: 'POST',
         body: formData,
       });
