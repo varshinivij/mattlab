@@ -4,6 +4,19 @@ function App() {
   const [image, setImage] = useState(null);
   const [status, setStatus] = useState('Initial');
 
+  async function sendItem() {
+    const res = await fetch("http://127.0.0.1:8000", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ text: "Buy pizza", is_done: false })
+    });
+
+    const data = await res.json();   // wait until it's converted to JSON
+    console.log(data);               // use the JSON result
+  }
+
+sendItem();
+
   const handleFileChange = (e) => {
     if (e.target.files) {
       const file = e.target.files[0];
