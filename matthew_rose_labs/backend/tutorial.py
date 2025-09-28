@@ -9,6 +9,7 @@ app = FastAPI()
 1. query (formal params, http://127.0.0.1:8000/items?limit=5, def func(limit:int)) searches the URl param by key and extracts value)
 2. path ( http://127.0.0.1:8000/items/2) @app.get("/items/{item_id}")
 3. body params: send a json object via path request 
+
 an endpoint --> exit or entry, where the server returns the service 
 
 A request is your frontend (React, browser, etc.) talking to your backend (FastAPI).

@@ -1,16 +1,21 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from fastapi import FastAPI, File, UploadFile, HTTPException
 
 app = FastAPI()
 
 images = []
 
-@app.post("/", response_model=formData())
-def add_image(img):
-    images.append(img)
-    return img
+@app.post("/")
+async def add_image(file: UploadFile = File(...), filename: str = "output.png"):
+    try:
+        contents = await file.read()   # read file as bytes
+        with open(filename, "wb") as f:   # write in binary mode
+            f.write(contents)
+        images.append(filename)
+        return {"filename": filename}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.get("/")
-def view_images(limit=len(images)):
+def view_images(limit: int = 10):
     return images[:limit]
-    

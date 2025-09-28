@@ -7,11 +7,13 @@ const allowedFiles = ['.jpeg', '.jpg', '.png'];
 function App() {
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState('Initial');
+  const [filename, setFileName] = useState('output.png');
 
-  function postRequest(newFile) {
+  function postRequest(newFile, newFileName) {
     const formData = new FormData();
     //standard JS object for file uploads
-    formData.append("File", newFile);
+    formData.append("file", newFile);
+    formData.append("filename", newFileName);
     axios.post('api', formData)
       .then( (response) => setStatus(`File uploaded: ${response.data}`))
       .catch( (error) => setStatus(`Error Encountered: ${error.message}`))
@@ -32,7 +34,8 @@ function App() {
         return;
       }
       setFile(file); 
-      postRequest(file);
+      setFileName(filename);
+      postRequest(file, filename);
     } else {
       setStatus("Error: Empty file");
     }
@@ -44,6 +47,7 @@ function App() {
       <div>
         <p className='main-title'>Welcome to Matthew-Rose Labs</p>
         <input type='file' onChange={handleFileChange} />
+        <input type='text' onkeypress={handleFileChange} />
         {file && (
           <img
             src={URL.createObjectURL(file)}
