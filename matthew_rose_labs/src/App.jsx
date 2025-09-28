@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import api from '/api.jsx';
+import api from './api.jsx';  
 import axios from 'axios';
 
 const allowedFiles = ['.jpeg', '.jpg', '.png'];
