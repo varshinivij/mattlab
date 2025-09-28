@@ -5,7 +5,12 @@ app = FastAPI()
 
 images = []
 
-@app.post("/")
-def create_image(img):
+@app.post("/", response_model=formData())
+def add_image(img):
     images.append(img)
     return img
+
+@app.get("/")
+def view_images(limit=len(images)):
+    return images[:limit]
+    
