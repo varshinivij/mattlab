@@ -30,9 +30,7 @@ async function sendItem() {
 
 3 DIFFERENT HELPERS FROM FASTAPI: These helpers specify from where in the request is the data coming from
 Query() = URL filter
-
 Body() = JSON data 
-
 Form() = HTML form fields
 
 """

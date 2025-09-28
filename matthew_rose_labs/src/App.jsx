@@ -15,7 +15,6 @@ function App() {
     console.log(data);               // use the JSON result
   }
 
-sendItem();
 
   const handleFileChange = (e) => {
     if (e.target.files) {
@@ -66,3 +65,4 @@ sendItem();
 }
 
 export default App;
+
