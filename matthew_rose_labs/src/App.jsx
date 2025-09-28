@@ -8,13 +8,13 @@ function App() {
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState('Initial');
 
-  function postRequest() {
+  function postRequest(newFile) {
     const formData = new FormData();
     //standard JS object for file uploads
-    formData.append("File", file);
+    formData.append("File", newFile);
     axios.post('api', formData)
-      .then( (response) => setStatus(`File uploaded: ${response}`))
-      .catch( (error) => setStatus(`Error Encountered: ${error}`))
+      .then( (response) => setStatus(`File uploaded: ${response.data}`))
+      .catch( (error) => setStatus(`Error Encountered: ${error.message}`))
   };
 
 
@@ -23,33 +23,38 @@ function App() {
       const file = e.target.files[0];
       if (file.size > 5000000) {
         setStatus("Error: File size larger than 5MB");
-      } else if (file.type.startsWith('image/')){
-        setStatus("Error: Upload an image file");
+        return;
+      } else if (!file.type.startsWith('image/')){
+        setStatus("Error: Upload an image");
+        return;
       } else if (!allowedFiles.some(ext => file.name.toLowerCase().endsWith(ext))) {
         setStatus("Error: File type not supported - upload PNG, JPEG or JPG");
+        return;
       }
-      setFile(file);
-      handleUpload(file);
-      } else {
-        setStatus("Error: Empty file");
-      }
+      setFile(file); 
+      postRequest(file);
+    } else {
+      setStatus("Error: Empty file");
     }
-  };
+    }
 
 
-  return (
-    <div>
-      <p className='main-title'>Welcome to Matthew-Rose Labs</p>
-      <input type='file' onChange={handleFileChange} />
-      {file && (
-        <img
-          src={URL.createObjectURL(file)}
-          style={{ maxWidth: '300px', marginTop: '10px' }}
-        />
-      )}
-      <p>{status}</p>
-    </div>
-  );
+
+    return (
+      <div>
+        <p className='main-title'>Welcome to Matthew-Rose Labs</p>
+        <input type='file' onChange={handleFileChange} />
+        {file && (
+          <img
+            src={URL.createObjectURL(file)}
+            style={{ maxWidth: '300px', marginTop: '10px' }}
+          />
+        )}
+        <p>{status}</p> 
+      </div>
+    );
+};
+
 
 export default App;
 
