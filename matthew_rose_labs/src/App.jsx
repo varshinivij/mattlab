@@ -1,26 +1,29 @@
 import React, { useState } from 'react';
+import api from '/api.jsx';
+
+const files = ['.jpeg', '.jpg', '.png'];
 
 function App() {
-  const [image, setImage] = useState(null);
+  const [file, setFile] = useState(null);
   const [status, setStatus] = useState('Initial');
 
-  async function sendItem() {
-    const res = await fetch("http://127.0.0.1:8000", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({ text: "Buy pizza", is_done: false })
-    });
-
-    const data = await res.json();   // wait until it's converted to JSON
-    console.log(data);               // use the JSON result
-  }
+  function postRequest() {
+    axios.post('api', file)
+      .then( (response) => setStatus("File uploaded: ${response}"))
+      .catch( (error) => setStatus("Error Encountered: ${error}"))
+  };
 
 
   const handleFileChange = (e) => {
     if (e.target.files) {
       const file = e.target.files[0];
+      if (file.size > 5000000) {
+        setStatus("Error: File size larger than 5MB");
+      } else if (file.type.startsWith != '/image'){
+        setStatus("Error: Please upload an image");
+      } else if (file.name )
       setStatus('Loading');
-      setImage(file);
+      setFile(file);
       handleUpload(file);
     }
   };
@@ -53,9 +56,9 @@ function App() {
     <div>
       <p className='main-title'>Welcome to Matthew-Rose Labs</p>
       <input type='file' onChange={handleFileChange} />
-      {image && (
+      {file && (
         <img
-          src={URL.createObjectURL(image)}
+          src={URL.createObjectURL(file)}
           style={{ maxWidth: '300px', marginTop: '10px' }}
         />
       )}
