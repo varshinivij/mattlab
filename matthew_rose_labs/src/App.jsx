@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
 import api from '/api.jsx';
 
-const files = ['.jpeg', '.jpg', '.png'];
+const allowedFiles = ['.jpeg', '.jpg', '.png'];
 
 function App() {
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState('Initial');
 
   function postRequest() {
-    axios.post('api', file)
-      .then( (response) => setStatus("File uploaded: ${response}"))
-      .catch( (error) => setStatus("Error Encountered: ${error}"))
+    const formData = new FormData();
+    //standard JS object for file uploads
+    formData.append("File", file);
+    axios.post('api', formData)
+      .then( (response) => setStatus(`File uploaded: ${response}`))
+      .catch( (error) => setStatus(`Error Encountered: ${error}`))
   };
 
 
@@ -19,35 +22,14 @@ function App() {
       const file = e.target.files[0];
       if (file.size > 5000000) {
         setStatus("Error: File size larger than 5MB");
-      } else if (file.type.startsWith != '/image'){
-        setStatus("Error: Please upload an image");
-      } else if (file.name )
-      setStatus('Loading');
+      } else if (file.type.startsWith('/image')){
+        setStatus("Error: Upload an image file");
+      } else if (!allowedFiles.some( (ext) => file.name.endsWith(ext))) {
+        setStatus("Error: File type not supported - upload PNG, JPEG or JPG");
+      }
+      }
       setFile(file);
       handleUpload(file);
-    }
-  };
-
-  const handleUpload = async (file) => {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      const result = await fetch('http://localhost:5173/matthew_rose_labs', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!result.ok) {
-        throw new Error(`Server error: ${result.status}`);
-      }
-
-      const data = await result.json().catch(() => null); // fallback if not JSON
-      console.log("Upload success:", data);
-      setStatus('Completed ');
-    } catch (error) {
-      console.error("Upload failed:", error);
-      setStatus('Error');
     }
   };
 
@@ -65,7 +47,6 @@ function App() {
       <p>{status}</p>
     </div>
   );
-}
 
 export default App;
 
