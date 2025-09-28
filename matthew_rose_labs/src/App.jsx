@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import api from '/api.jsx';
+import axios from 'axios';
 
 const allowedFiles = ['.jpeg', '.jpg', '.png'];
 
@@ -22,14 +23,16 @@ function App() {
       const file = e.target.files[0];
       if (file.size > 5000000) {
         setStatus("Error: File size larger than 5MB");
-      } else if (file.type.startsWith('/image')){
+      } else if (file.type.startsWith('image/')){
         setStatus("Error: Upload an image file");
-      } else if (!allowedFiles.some( (ext) => file.name.endsWith(ext))) {
+      } else if (!allowedFiles.some(ext => file.name.toLowerCase().endsWith(ext))) {
         setStatus("Error: File type not supported - upload PNG, JPEG or JPG");
-      }
       }
       setFile(file);
       handleUpload(file);
+      } else {
+        setStatus("Error: Empty file");
+      }
     }
   };
 
