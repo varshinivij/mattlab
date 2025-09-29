@@ -5,7 +5,7 @@ app = FastAPI()
 images = []
 
 @app.post("/file")
-async def add_image(file: UploadFile = File(...)):
+async def add_image(filename, file: UploadFile = File(...)):
     try:
         contents = await file.read()   # read file as bytes
         with open(filename, "wb") as f:   # write in binary mode
