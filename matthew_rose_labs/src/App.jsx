@@ -25,7 +25,7 @@ function App() {
     formData.append("file", file);
     formData.append("fileName", fileName);
     axios.post('/api', formData)
-      .then(response => setStatus(`File uploaded: ${response.data}`))
+      .then(response => setStatus(`File uploaded: ${response.data.name}`))
       .catch(error => setStatus(`Error Encountered: ${error.message}`));
   }
 
