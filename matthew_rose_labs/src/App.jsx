@@ -1,12 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const allowedFiles = ['.jpeg', '.jpg', '.png'];
 
+
 function App() {
   const [file, setFile] = useState(null);
-  const [status, setStatus] = useState('No File Chosen Yet');
+  const [status, setStatus] = useState('No File Chosen');
   const [filename, setFileName] = useState('output.png');
+  const [fileURL, setFileURL] = useState(null);
+
+  useEffect( () => {
+    setFileURL(URL.createObjectURL(fileURL));
+    return () => URL.revokeObjectURL();
+  }, [file]);
 
   function postFileRequest() {
     const formData = new FormData();
@@ -31,7 +38,6 @@ function App() {
         return;
       }
       setFile(file);
-      postFileRequest(file, filename);
     } else {
       setStatus("Error: Empty file");
     }
@@ -47,7 +53,15 @@ function App() {
       <label > FileName:
         <input type='text' onKeyDown={(e => setFileName(e.target.value))}/>
       </label>
-      <button type="submit" onClick={postFileRequest}>Submit</button>
+      <button
+        type="submit"
+        onClick={() => {
+          if (file && filename) {
+            postFileRequest();
+          }
+        }}>
+        Submit
+      </button>
 
       {file && (
         <img
