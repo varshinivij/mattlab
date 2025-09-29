@@ -7,18 +7,21 @@ const allowedFiles = ['.jpeg', '.jpg', '.png'];
 function App() {
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState('No File Chosen');
-  const [filename, setFileName] = useState('output.png');
+  const [fileName, setFileName] = useState('output.png');
   const [fileURL, setFileURL] = useState(null);
 
   useEffect( () => {
-    setFileURL(URL.createObjectURL(fileURL));
-    return () => URL.revokeObjectURL();
+    setFileURL(URL.createObjectURL(file));
+    return () => {
+      fileURL(null);
+      URL.revokeObjectURL(file);
+    }
   }, [file]);
 
   function postFileRequest() {
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("fileName", filename);
+    formData.append("fileName", fileName);
     axios.post('/api', formData)
       .then(response => setStatus(`File uploaded: ${response.data}`))
       .catch(error => setStatus(`Error Encountered: ${error.message}`));
@@ -38,6 +41,7 @@ function App() {
         return;
       }
       setFile(file);
+      setStatus('Successful')
     } else {
       setStatus("Error: Empty file");
     }
@@ -51,12 +55,12 @@ function App() {
         <input type='file' onChange={handleFileUpload}/>
       </label>
       <label > FileName:
-        <input type='text' onKeyDown={(e => setFileName(e.target.value))}/>
+        <input type='text' onChange={(e => setFileName(e.target.value))}/>
       </label>
       <button
         type="submit"
         onClick={() => {
-          if (file && filename) {
+          if (file && fileName) {
             postFileRequest();
           }
         }}>

@@ -5,13 +5,13 @@ app = FastAPI()
 images = []
 
 @app.post("/file")
-async def add_image(filename, file: UploadFile = File(...)):
+async def add_image(fileName, file: UploadFile = File(...)):
     try:
         contents = await file.read()   # read file as bytes
-        with open(filename, "wb") as f:   # write in binary mode
+        with open(fileName, "wb") as f:   # write in binary mode
             f.write(contents)
-        images.append(filename)
-        return {"filename": filename}
+        images.append(fileName)
+        return {"filename": fileName}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
