@@ -63,9 +63,9 @@ function App() {
         Submit
       </button>
 
-      {file && (
+      {fileURL && (
         <img
-          src={URL.createObjectURL(file)}
+          src={fileURL}
           style={{ maxWidth: '300px', marginTop: '10px' }}
         />
       )}
