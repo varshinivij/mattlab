@@ -52,12 +52,16 @@ function App() {
     <div>
       <p className='main-title'>Welcome to Matthew-Rose Labs</p>
 
-      <label> Choose File:
+      <div className="input-group">
+        <label>Choose File:</label>
         <input type='file' onChange={handleFileUpload}/>
-      </label>
-      <label > FileName:
-        <input type='text' onChange={(e => setFileName(e.target.value))}/>
-      </label>
+      </div>
+
+      <div className="input-group">
+        <label>FileName:</label>
+        <input type='text' value={fileName} onChange={(e => setFileName(e.target.value))}/>
+      </div>
+
       <button
         type="submit"
         onClick={() => {
@@ -71,10 +75,15 @@ function App() {
       {fileURL && (
         <img
           src={fileURL}
+          alt="Preview"
           style={{ maxWidth: '300px', marginTop: '10px' }}
         />
       )}
-      <p>{status}</p>
+
+      <div className="status-container">
+        <span className="status-icon">●</span>
+        <span className="status-text">{status}</span>
+      </div>
     </div>
   );
 }

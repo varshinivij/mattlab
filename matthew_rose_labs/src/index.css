@@ -17,7 +17,44 @@ body {
   padding-bottom: 10px;
 }
 
+.main-title::after {
+  content: ' [ACTIVE]';
+  color: #00cc33;
+  font-size: 12px;
+  font-weight: normal;
+}
 
+/* Input groups for cleaner layout */
+.input-group {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 400px;
+}
+
+.input-group label {
+  margin-bottom: 5px;
+  color: #00ff41;
+  font-weight: bold;
+}
+
+/* Text input styling */
+input[type="text"] {
+  background-color: #000000;
+  color: #00ff41;
+  border: 1px solid #1a4d1a;
+  padding: 8px 12px;
+  font-family: inherit;
+  font-size: 14px;
+  width: 100%;
+}
+
+input[type="text"]:focus {
+  outline: none;
+  border-color: #00ff41;
+  box-shadow: 0 0 5px rgba(0, 255, 65, 0.3);
+}
 
 /* File input styling */
 input[type="file"] {
@@ -28,13 +65,11 @@ input[type="file"] {
   font-family: inherit;
   font-size: 14px;
   width: 100%;
-  max-width: 400px;
-  margin-bottom: 15px;
 }
 
 input[type="file"]::-webkit-file-upload-button {
   background-color: #1a4d1a;
-  color: #000000;
+  color: #00ff41;
   border: none;
   padding: 6px 12px;
   margin-right: 10px;
@@ -45,12 +80,12 @@ input[type="file"]::-webkit-file-upload-button {
 
 input[type="file"]::-webkit-file-upload-button:hover {
   background-color: #00ff41;
+  color: #000000;
 }
 
-/* Firefox file input button */
 input[type="file"]::file-selector-button {
   background-color: #1a4d1a;
-  color: #000000;
+  color: #00ff41;
   border: none;
   padding: 6px 12px;
   margin-right: 10px;
@@ -61,6 +96,55 @@ input[type="file"]::file-selector-button {
 
 input[type="file"]::file-selector-button:hover {
   background-color: #00ff41;
+  color: #000000;
+}
+
+/* Button styling */
+button {
+  background-color: #1a4d1a;
+  color: #00ff41;
+  border: 1px solid #00ff41;
+  padding: 10px 20px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background-color: #00ff41;
+  color: #000000;
+}
+
+/* Status container with icon */
+.status-container {
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+  padding: 12px 16px;
+  background-color: #0a0a0a;
+  border: 1px solid #1a4d1a;
+  border-left: 3px solid #00ff41;
+  max-width: 600px;
+}
+
+.status-icon {
+  color: #00ff41;
+  font-size: 12px;
+  margin-right: 12px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.status-text {
+  color: #00ff41;
+  font-size: 14px;
 }
 
 /* Image styling with expansion animation */
@@ -77,7 +161,6 @@ img {
   transition: all 0.3s ease;
 }
 
-/* Image expansion animation */
 @keyframes imageExpand {
   0% {
     max-width: 100px;
@@ -101,21 +184,12 @@ div {
   position: relative;
 }
 
-/* Add some terminal-like decorative elements */
-.main-title::after {
-  content: ' [ACTIVE]';
-  color: #00cc33;
-  font-size: 12px;
-  font-weight: normal;
-}
-
-/* Optional: Add a terminal cursor effect */
+/* Terminal cursor effect */
 @keyframes blink {
   0%, 50% { opacity: 1; }
   51%, 100% { opacity: 0; }
 }
 
-/* You can add this class to any element for a blinking cursor effect */
 .terminal-cursor::after {
   content: '_';
   animation: blink 1s infinite;
