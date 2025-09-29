@@ -11,10 +11,12 @@ function App() {
   const [fileURL, setFileURL] = useState(null);
 
   useEffect( () => {
-    setFileURL(URL.createObjectURL(file));
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    setFileURL(url);
     return () => {
-      fileURL(null);
-      URL.revokeObjectURL(file);
+      setFileURL(null);
+      URL.revokeObjectURL(url);
     }
   }, [file]);
 
@@ -41,7 +43,6 @@ function App() {
         return;
       }
       setFile(file);
-      setStatus('Successful')
     } else {
       setStatus("Error: Empty file");
     }
