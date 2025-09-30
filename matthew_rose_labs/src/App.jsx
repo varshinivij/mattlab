@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-
+import api from './api';
 const allowedFiles = ['.jpeg', '.jpg', '.png'];
 
 
@@ -24,8 +23,8 @@ function App() {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("fileName", fileName);
-    axios.post('/api', formData)
-      .then(response => setStatus(`File uploaded: ${response.data.name}`))
+    api.post('/', formData)
+      .then(response => setStatus(`File uploaded: ${response.data.filename}`))
       .catch(error => setStatus(`Error Encountered: ${error.message}`));
   }
 
