@@ -12,15 +12,15 @@ function App() {
   const [fileName, setFileName] = useState(null);
   const [fileNameStatus, setFileNameStatus] = useState(null);
   const [fileURL, setFileURL] = useState(null);
-  const [resultBlob, setResultBlob] = useState(null); // FIX: New state for result
+  const [resultBlob, setResultBlob] = useState(null); 
 
-  const [x, setX] = useState(0);
-  const [y, setY] = useState(0);
+  const [coordinates, setCoordinates] = useState([]);
 
   useEffect(() => {
     if (!file) return;
     const url = URL.createObjectURL(file);
     setFileURL(url);
+    setCoordinates([]);
     return () => {
       setFileURL(null);
       URL.revokeObjectURL(url);
@@ -29,13 +29,12 @@ function App() {
 
   function postFileRequest() {
     const formData = new FormData();
-    formData.append("x", x);
-    formData.append("y", y);
-    formData.append("file", file);
+    formData.append("coordinates", coordinates);
     formData.append("fileName", fileName);
-    api.post('/', formData, { responseType: 'blob' }) // FIX: Get blob response
+    formData.append("file", file);
+    api.post('/', formData, { responseType: 'blob' }) 
       .then((response) => {
-        setResultBlob(response.data); // FIX: Store blob in separate state
+        setResultBlob(response.data);
         setFileStatus('File Uploaded Successfully')
       })
       .catch(error => setFileStatus(`Error Encountered: ${error.message}`));
@@ -46,10 +45,16 @@ function App() {
     setFileStatus('No File Chosen');
     setFileName(null);
     setFileNameStatus(null);
-    setResultBlob(null); // FIX: Clear result blob
+    setResultBlob(null); 
     if (fileURL) {
       URL.revokeObjectURL(fileURL);
       setFileURL(null);
+    }
+  }
+  
+  const handleCoordinateSelection = (e) => {
+    if (e) {
+      setCoordinates(...prev, [e.offsetX, e.offsetY]);
     }
   }
 
@@ -109,8 +114,6 @@ function App() {
         />
       </div>
     
-      <input type='number' onChange={(e) => setX(e.target.value)} placeholder="Enter X coordinate" />
-      <input type='number' onChange={(e) => setY(e.target.value)} placeholder="Enter Y coordinate" />
 
       <button
         type="submit"
@@ -127,11 +130,16 @@ function App() {
         <img
           src={fileURL}
           alt="Preview"
+          usemap="#cropmap"
           style={{ maxWidth: '300px', marginTop: '10px' }}
+          onClick = {handleCoordinateSelection}
         />
       )}
 
-      {fileStatus == 'File Uploaded Successfully' && resultBlob && (
+      <map name="cropmap">
+      </map>
+
+      {resultBlob && (
         <a download={fileName} href={URL.createObjectURL(resultBlob)}> Download Output </a>
       )}
 
