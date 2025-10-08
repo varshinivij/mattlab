@@ -9,7 +9,7 @@ function App() {
   const [fileName, setFileName] = useState(null);
   const [fileNameStatus, setFileNameStatus] = useState(null);
   const [fileURL, setFileURL] = useState(null);
-  
+
   const [x, setX] = useState(0);
   const [y, setY] = useState(0);
 
@@ -30,7 +30,10 @@ function App() {
     formData.append("file", file);
     formData.append("fileName", fileName);
     api.post('/', formData)
-      .then(response => setFileStatus(`File uploaded: ${fileName}`))
+      .then((response) => {
+        setFile(response)
+        setFileStatus('File Uploaded Successfully')
+      })
       .catch(error => setFileStatus(`Error Encountered: ${error.message}`));
   }
 
@@ -121,6 +124,10 @@ function App() {
           alt="Preview"
           style={{ maxWidth: '300px', marginTop: '10px' }}
         />
+      )}
+
+      {fileStatus == 'File Uploaded Successfully' && (
+        <a download={fileName} href={file}> Download Output </a>
       )}
 
       <div className="status-container">

@@ -1,19 +1,21 @@
 from PIL import Image
 from io import BytesIO
 
-def crop_image_with_coordinates(image_path, output_path, coordinates):
+def crop_image_with_coordinates(image_path, output_name, coordinates):
     """
     Crops an image based on the provided coordinates and saves the result.
     """
     try:
-        buffer = BytesIO() #here, we create 
-        buffer.read()
-        img = Image.open(buffer)
+        with open(image_path, 'rb') as f:  # 'rb' opens in binary read mode
+            image_bytes = f.read()
+        image_stream = BytesIO(image_bytes) 
+        img = Image.open(image_stream)
         cropped_img = img.crop(coordinates)
-        cropped_img.save(buffer, format="PNG")
+        cropped_img.name = output_name
+        output_stream = BytesIO()
+        cropped_img.save(output_stream, format=output_name[-3]) #i think maybe write to buffer 
         print(f"Image successfully cropped and saved")
-        return output_path
-    
+        return output_stream
     except FileNotFoundError:
         print(f"Error: Image file not found at {image_path}")
     except Exception as e:
