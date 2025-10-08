@@ -54,7 +54,10 @@ function App() {
   
   const handleCoordinateSelection = (e) => {
     if (e) {
-      setCoordinates(...prev, [e.offsetX, e.offsetY]);
+      e.preventDefault();
+      const rec = e.target.getBoundingClientRect()
+      x, y = e.clientX - rec.left, e.clientY - rec.right
+      setCoordinates((prev) => [...prev, [x, y]]);
     }
   }
 
@@ -126,18 +129,34 @@ function App() {
         Clear
       </button>
 
-      {fileURL && (
+    {fileURL && (
+      <div style={{ position: 'relative', display: 'inline-block' }}>
         <img
           src={fileURL}
           alt="Preview"
-          usemap="#cropmap"
-          style={{ maxWidth: '300px', marginTop: '10px' }}
-          onClick = {handleCoordinateSelection}
+          useMap="#cropmap"
+          style={{ maxWidth: '300px', marginTop: '10px', cursor: 'pointer' }}
+          onClick={handleCoordinateSelection}
         />
-      )}
+        {coordinates.map(([x, y], index) => (
+          <div
+            key={index}
+            style={{
+              position: 'absolute',
+              width: '4px',
+              height: '4px',
+              backgroundColor: 'red',
+              borderRadius: '50%',
+              top: y,
+              left: x,
+              pointerEvents: 'none'
+            }}
+          />
+        ))}
+      </div>
+    )}
 
-      <map name="cropmap">
-      </map>
+  
 
       {resultBlob && (
         <a download={fileName} href={URL.createObjectURL(resultBlob)}> Download Output </a>
