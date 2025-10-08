@@ -9,6 +9,9 @@ function App() {
   const [fileName, setFileName] = useState(null);
   const [fileNameStatus, setFileNameStatus] = useState(null);
   const [fileURL, setFileURL] = useState(null);
+  
+  const [x, setX] = useState(0);
+  const [y, setY] = useState(0);
 
   useEffect(() => {
     if (!file) return;
@@ -22,6 +25,8 @@ function App() {
 
   function postFileRequest() {
     const formData = new FormData();
+    formData.append("x", x);
+    formData.append("y", y);
     formData.append("file", file);
     formData.append("fileName", fileName);
     api.post('/', formData)
@@ -95,6 +100,9 @@ function App() {
           onBlur={(e) => handleFileName(e.target.value)}
         />
       </div>
+    
+      <input type='number' onChange={(e) => setX(e.target.value)}> Enter the X coordinates </input>
+      <input type='number' onChange={(e) => setY(e.target.value)}> Enter the Y coordinates </input>
 
       <button
         type="submit"
