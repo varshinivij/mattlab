@@ -1,3 +1,6 @@
+// ============================================
+// FILE 1: App.jsx
+// ============================================
 import React, { useState, useEffect } from 'react';
 import api from './api';
 const allowedFiles = ['.jpeg', '.jpg', '.png'];
@@ -9,6 +12,7 @@ function App() {
   const [fileName, setFileName] = useState(null);
   const [fileNameStatus, setFileNameStatus] = useState(null);
   const [fileURL, setFileURL] = useState(null);
+  const [resultBlob, setResultBlob] = useState(null); // FIX: New state for result
 
   const [x, setX] = useState(0);
   const [y, setY] = useState(0);
@@ -29,9 +33,9 @@ function App() {
     formData.append("y", y);
     formData.append("file", file);
     formData.append("fileName", fileName);
-    api.post('/', formData)
+    api.post('/', formData, { responseType: 'blob' }) // FIX: Get blob response
       .then((response) => {
-        setFile(response)
+        setResultBlob(response.data); // FIX: Store blob in separate state
         setFileStatus('File Uploaded Successfully')
       })
       .catch(error => setFileStatus(`Error Encountered: ${error.message}`));
@@ -42,6 +46,7 @@ function App() {
     setFileStatus('No File Chosen');
     setFileName(null);
     setFileNameStatus(null);
+    setResultBlob(null); // FIX: Clear result blob
     if (fileURL) {
       URL.revokeObjectURL(fileURL);
       setFileURL(null);
@@ -51,7 +56,7 @@ function App() {
   const handleFileUpload = (e) => {
     if (e.target.files) {
       const file = e.target.files[0];
-      if (file.size > 5 * 1024 * 1024) {  // clearer than 5000000
+      if (file.size > 5 * 1024 * 1024) {
         setFileStatus("Error: File size larger than 5MB");
         return;
       } else if (!file.type.startsWith('image/')) {
@@ -104,8 +109,8 @@ function App() {
         />
       </div>
     
-      <input type='number' onChange={(e) => setX(e.target.value)}> Enter the X coordinates </input>
-      <input type='number' onChange={(e) => setY(e.target.value)}> Enter the Y coordinates </input>
+      <input type='number' onChange={(e) => setX(e.target.value)} placeholder="Enter X coordinate" />
+      <input type='number' onChange={(e) => setY(e.target.value)} placeholder="Enter Y coordinate" />
 
       <button
         type="submit"
@@ -126,8 +131,8 @@ function App() {
         />
       )}
 
-      {fileStatus == 'File Uploaded Successfully' && (
-        <a download={fileName} href={file}> Download Output </a>
+      {fileStatus == 'File Uploaded Successfully' && resultBlob && (
+        <a download={fileName} href={URL.createObjectURL(resultBlob)}> Download Output </a>
       )}
 
       <div className="status-container">
@@ -139,3 +144,4 @@ function App() {
 }
 
 export default App;
+

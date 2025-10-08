@@ -1,7 +1,7 @@
 from PIL import Image
 from io import BytesIO
 
-def crop_image_with_coordinates(image_path, output_name, coordinates):
+def crop_image_with_coordinates(image_path, output_name, ext, coordinates):
     """
     Crops an image based on the provided coordinates and saves the result.
     """
@@ -13,7 +13,8 @@ def crop_image_with_coordinates(image_path, output_name, coordinates):
         cropped_img = img.crop(coordinates)
         cropped_img.name = output_name
         output_stream = BytesIO()
-        cropped_img.save(output_stream, format=output_name[-3]) #i think maybe write to buffer 
+        cropped_img.save(output_stream, format=ext) #i think maybe write to buffer 
+        output_stream.seek(0) #moves the byte counter back to index 0
         print(f"Image successfully cropped and saved")
         return output_stream
     except FileNotFoundError:
