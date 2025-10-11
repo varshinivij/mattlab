@@ -6,17 +6,16 @@ import api from './api';
 const allowedFiles = ['.jpeg', '.jpg', '.png'];
 const invalidCharsList = ["<", ">", ":", "\"", "/", "\\", "|", "?", "*"];
 
-
 function App() {
   const [file, setFile] = useState(null);
   const [fileStatus, setFileStatus] = useState('No File Chosen');
   const [fileName, setFileName] = useState(null);
   const [fileNameStatus, setFileNameStatus] = useState(null);
   const [fileURL, setFileURL] = useState(null);
+  const [angle, setAngle] = useState(0.0); 
   
   const [blobURL, setBlobURL] = useState(null);
-
-  const [coordinates, setCoordinates] = useState([]);
+  const [coordinates, setCoordinates] = useState();
 
   useEffect(() => {
     if (!file) return;
@@ -31,10 +30,10 @@ function App() {
 
   async function postFileRequest() {
     const formData = new FormData();
-    formData.append("coordinates", JSON.stringify(coordinates));
-    formData.append("angle", JSON.stringify(coordinates));
     formData.append("fileName", fileName);
     formData.append("file", file);
+    formData.append("coordinates", JSON.stringify(coordinates));
+    formData.append("angle", angle);
     api.post('/', formData, {responseType:'blob'}) 
       .then((response) => {
         setBlobURL(URL.createObjectURL(response.data));
@@ -48,6 +47,7 @@ function App() {
     setFileStatus('No File Chosen');
     setFileName(null);
     setFileNameStatus(null);
+    setAngle(0.0);
     if (fileURL) {
       URL.revokeObjectURL(fileURL);
       URL.revokeObjectURL(blobURL);
@@ -120,6 +120,13 @@ function App() {
           onChange={(e) => setFileName(e.target.value)} 
           onBlur={(e) => handleFileName(e.target.value)}
         />
+
+        <div>
+          <label>Enter Angle</label>
+          <input type='text' onChange={(e) => setAngle(e.target.value)}/> 
+
+        </div>
+        
       </div>
     
 
@@ -133,6 +140,7 @@ function App() {
       <button type="clear" onClick={() => clear()}>
         Clear
       </button>
+
 
     {fileURL && (
       <div style={{ position: 'relative', display: 'inline-block' }}>
