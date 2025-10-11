@@ -194,3 +194,59 @@ div {
   content: '_';
   animation: blink 1s infinite;
 }
+/* Download button styling */
+a[download] {
+  display: inline-block;
+  background-color: #1a4d1a;
+  color: #00ff41;
+  border: 1px solid #00ff41;
+  padding: 12px 24px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: bold;
+  text-decoration: none;
+  margin-top: 20px;
+  margin-left: 10px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+a[download]::before {
+  content: '↓ ';
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+a[download]:hover {
+  background-color: #00ff41;
+  color: #000000;
+  box-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+  transform: translateY(-2px);
+}
+
+a[download]:active {
+  transform: translateY(0);
+}
+
+/* Optional: Add a scanning line effect on hover */
+a[download]::after {
+  content: '';
+  position: absolute;
+  top: -100%;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(0, 255, 65, 0.3),
+    transparent
+  );
+  transition: top 0.5s ease;
+}
+
+a[download]:hover::after {
+  top: 100%;
+}

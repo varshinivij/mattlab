@@ -21,7 +21,7 @@ app.add_middleware(
 )
 
 @app.post("/")
-async def add_image(coordinates: str = Form(...), fileName: str = Form(...), file: UploadFile = File(...)):
+async def add_image(coordinates: str = Form(...), angle : float=Form(...), fileName: str = Form(...), file: UploadFile = File(...)):
     try:
         coords = json.loads(coordinates)
         ext = fileName.split('.')[-1].lower()
@@ -31,7 +31,7 @@ async def add_image(coordinates: str = Form(...), fileName: str = Form(...), fil
         x1, x2 = min(x), max(x)
         y1, y2 = min(y), max(y)
         
-        cropped_image = crop_image_with_coordinates(file, ext, ((x1, y1, x2, y2)))
+        cropped_image = crop_image_with_coordinates(file, angle, ext, ((x1, y1, x2, y2)))
         images.append(fileName)
         return Response(content=cropped_image, media_type=f"image/{ext}", headers={"Content-Disposition": "attachment"})
     except Exception as e:
