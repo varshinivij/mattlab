@@ -23,8 +23,12 @@ app.add_middleware(
 async def add_image(coordinates: List, fileName: str = Form(...), file: UploadFile = File(...)):
     try:
         ext = fileName.split('.')[-1].lower()
-        x1, x2 = min(coordinates[:][0]), max(coordinates[:][0])
-        y1, y2 = min(coordinates[:][1]), max(coordinates[:][1])
+        x = [px[0] for px in coordinates]
+        y = [py[1] for py in coordinates]
+
+        x1, x2 = min(x), max(x)
+        y1, y2 = min(y), max(y)
+        
         cropped_image = crop_image_with_coordinates(file, ext, ((x1, y1, x2, y2)))
         images.append(fileName)
         return Response(content=cropped_image, media_type=f"image/{ext}", headers={"Content-Disposition": "attachment"})

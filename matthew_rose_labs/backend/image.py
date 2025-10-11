@@ -22,9 +22,3 @@ def crop_image_with_coordinates(image_path, ext, coordinates):
         print(f"An error occurred: {e}")
 
 
-if __name__ == "__main__":
-    crop_image_with_coordinates(
-        "/Users/varshinivijay/Desktop/Projects/mattlab/matthew_rose_labs/backend/rose.png",
-        "/Users/varshinivijay/Desktop/Projects/mattlab/matthew_rose_labs/backend/cropped_rose.png",
-        (300, 50, 500, 500)
-    )
