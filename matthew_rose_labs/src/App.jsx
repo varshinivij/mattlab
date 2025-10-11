@@ -12,6 +12,7 @@ function App() {
   const [fileName, setFileName] = useState(null);
   const [fileNameStatus, setFileNameStatus] = useState(null);
   const [fileURL, setFileURL] = useState(null);
+  
   const [resultBlob, setResultBlob] = useState(null); 
 
   const [coordinates, setCoordinates] = useState([]);
@@ -27,12 +28,12 @@ function App() {
     }
   }, [file]);
 
-  function postFileRequest() {
+  async function postFileRequest() {
     const formData = new FormData();
     formData.append("coordinates", coordinates);
     formData.append("fileName", fileName);
     formData.append("file", file);
-    api.post('/', formData, { responseType: 'blob' }) 
+    api.post('/', formData) 
       .then((response) => {
         setResultBlob(response.blob());
         setFileStatus('File Uploaded Successfully')
@@ -48,7 +49,9 @@ function App() {
     setResultBlob(null); 
     if (fileURL) {
       URL.revokeObjectURL(fileURL);
+      URL.revokeObjectURL(resultBlob);
       setFileURL(null);
+      setResultBlob(null);
     }
   }
   
