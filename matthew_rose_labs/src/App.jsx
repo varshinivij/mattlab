@@ -34,7 +34,7 @@ function App() {
     formData.append("file", file);
     api.post('/', formData, { responseType: 'blob' }) 
       .then((response) => {
-        setResultBlob(response.data);
+        setResultBlob(response.blob());
         setFileStatus('File Uploaded Successfully')
       })
       .catch(error => setFileStatus(`Error Encountered: ${error.message}`));

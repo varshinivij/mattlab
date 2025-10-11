@@ -7,7 +7,7 @@ def crop_image_with_coordinates(image_path, ext, coordinates):
     """
     try:
         img = Image.open(image_path.file)
-        cropped_img = img.crop(coordinates)
+        cropped_img = img.crop(coordinates) 
 
         output_stream = BytesIO() #holds the memory as a temporary file 
         cropped_img.save(output_stream, format=ext)  

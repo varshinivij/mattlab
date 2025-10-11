@@ -24,15 +24,15 @@ async def add_image(coordinates: List, fileName: str = Form(...), file: UploadFi
     try:
         ext = fileName.split('.')[-1].lower()
         x1, x2 = min(coordinates[:][0]), max(coordinates[:][0])
-        y1, y2 = min(coordinates[:][0]), max(coordinates[:][0])
+        y1, y2 = min(coordinates[:][1]), max(coordinates[:][1])
         cropped_image = crop_image_with_coordinates(file, ext, ((x1, y1, x2, y2)))
-        media_type = f"image/{ext}"
         images.append(fileName)
-        return Response(content=cropped_image, media_type=media_type)
+        return Response(content=cropped_image, media_type=f"image/{ext}", headers={"Content-Disposition": "attachment"})
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     
 @app.get("/")
 def view_images(limit: int = 10):
     return images[:limit]
+
 
