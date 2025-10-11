@@ -6,6 +6,7 @@ import api from './api';
 const allowedFiles = ['.jpeg', '.jpg', '.png'];
 const invalidCharsList = ["<", ">", ":", "\"", "/", "\\", "|", "?", "*"];
 
+
 function App() {
   const [file, setFile] = useState(null);
   const [fileStatus, setFileStatus] = useState('No File Chosen');
@@ -14,6 +15,7 @@ function App() {
   const [fileURL, setFileURL] = useState(null);
   
   const [resultBlob, setResultBlob] = useState(null); 
+  const [blobURL, setBlobURL] = useState(null);
 
   const [coordinates, setCoordinates] = useState([]);
 
@@ -30,12 +32,12 @@ function App() {
 
   async function postFileRequest() {
     const formData = new FormData();
-    formData.append("coordinates", coordinates);
+    formData.append("coordinates", JSON.stringify(coordinates));
     formData.append("fileName", fileName);
     formData.append("file", file);
-    api.post('/', formData) 
+    api.post('/', formData, {responseType:'blob'}) 
       .then((response) => {
-        setResultBlob(response.blob());
+        setBlobURL(URL.createObjectURL(response.data));
         setFileStatus('File Uploaded Successfully')
       })
       .catch(error => setFileStatus(`Error Encountered: ${error.message}`));
@@ -46,12 +48,11 @@ function App() {
     setFileStatus('No File Chosen');
     setFileName(null);
     setFileNameStatus(null);
-    setResultBlob(null); 
     if (fileURL) {
       URL.revokeObjectURL(fileURL);
-      URL.revokeObjectURL(resultBlob);
+      URL.revokeObjectURL(blobURL);
       setFileURL(null);
-      setResultBlob(null);
+      setBlobURL(blobURL);
     }
   }
   
@@ -59,7 +60,8 @@ function App() {
     if (e) {
       e.preventDefault();
       const rec = e.target.getBoundingClientRect()
-      x, y = e.clientX - rec.left, e.clientY - rec.right
+      const x = e.clientX - rec.left;
+      const y = e.clientY - rec.top;
       setCoordinates((prev) => [...prev, [x, y]]);
     }
   }
@@ -162,7 +164,7 @@ function App() {
   
 
       {resultBlob && (
-        <a download={fileName} href={URL.createObjectURL(resultBlob)}> Download Output </a>
+        <a download={fileName} href={blobURL}> Download Output </a>
       )}
 
       <div className="status-container">
