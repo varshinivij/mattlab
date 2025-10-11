@@ -3,6 +3,7 @@ from typing import List
 from fastapi.middleware.cors import CORSMiddleware
 from image import crop_image_with_coordinates
 from io import BytesIO
+import json
 
 app = FastAPI()
 
@@ -20,11 +21,12 @@ app.add_middleware(
 )
 
 @app.post("/")
-async def add_image(coordinates: List, fileName: str = Form(...), file: UploadFile = File(...)):
+async def add_image(coordinates: str = Form(...), fileName: str = Form(...), file: UploadFile = File(...)):
     try:
+        coords = json.loads(coordinates)
         ext = fileName.split('.')[-1].lower()
-        x = [px[0] for px in coordinates]
-        y = [py[1] for py in coordinates]
+        x = [px[0] for px in coords]
+        y = [py[1] for py in coords]
 
         x1, x2 = min(x), max(x)
         y1, y2 = min(y), max(y)
@@ -38,5 +40,3 @@ async def add_image(coordinates: List, fileName: str = Form(...), file: UploadFi
 @app.get("/")
 def view_images(limit: int = 10):
     return images[:limit]
-
-

@@ -14,7 +14,6 @@ function App() {
   const [fileNameStatus, setFileNameStatus] = useState(null);
   const [fileURL, setFileURL] = useState(null);
   
-  const [resultBlob, setResultBlob] = useState(null); 
   const [blobURL, setBlobURL] = useState(null);
 
   const [coordinates, setCoordinates] = useState([]);
@@ -52,7 +51,7 @@ function App() {
       URL.revokeObjectURL(fileURL);
       URL.revokeObjectURL(blobURL);
       setFileURL(null);
-      setBlobURL(blobURL);
+      setBlobURL(null);
     }
   }
   
@@ -163,7 +162,7 @@ function App() {
 
   
 
-      {resultBlob && (
+      {blobURL && (
         <a download={fileName} href={blobURL}> Download Output </a>
       )}
 
@@ -176,4 +175,3 @@ function App() {
 }
 
 export default App;
-
