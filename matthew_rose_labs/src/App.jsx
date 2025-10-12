@@ -1,6 +1,11 @@
 // ============================================
 // FILE 1: App.jsx
 // ============================================
+
+// READD:
+// https://medium.com/@marcnealer/a-practical-guide-to-using-pydantic-8aafa7feebf6
+
+
 import React, { useState, useEffect } from 'react';
 import api from './api';
 const allowedFiles = ['.jpeg', '.jpg', '.png'];
