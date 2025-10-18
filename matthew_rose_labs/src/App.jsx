@@ -35,10 +35,10 @@ function App() {
 
   async function postFileRequest() {
     const formData = new FormData();
-    formData.append("fileName", fileName);
-    formData.append("file", file);
     formData.append("coordinates", JSON.stringify(coordinates));
     formData.append("angle", angle);
+    formData.append("fileName", fileName);
+    formData.append("file", file);
     api.post('/', formData, {responseType:'blob'}) 
       .then((response) => {
         setBlobURL(URL.createObjectURL(response.data));
