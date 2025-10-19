@@ -1,16 +1,21 @@
 from PIL import Image
 from io import BytesIO
 
-def crop_image_with_coordinates(image_path, ext, angle=0.0, coordinates=None):
+def crop_image_with_coordinates(image_path, ext, angle, coordinates):
     """
     Crops an image based on the provided coordinates and saves the result.
     """
     try:
         img = Image.open(image_path.file)
         if coordinates:
-            img = img.crop(coordinates) 
+            x = [coords[0] for coords in coordinates]
+            y = [coords[1] for coords in coordinates]
+            x1, x2 = min(x), max(x)
+            y1, y2 = min(y), max(y)
+            img = img.crop((x1,y1,x2,y2)) 
         if angle: 
-            img = img.rotate(angle, expand=True)
+            img = img.rotate(float(angle), expand=True)
+
         output_stream = BytesIO() #holds the memory as a temporary file 
         img.save(output_stream, format=ext)  
         output_stream.seek(0) #moves the byte counter back to index 0

@@ -1,5 +1,5 @@
 from fastapi import FastAPI, File, Form, UploadFile, HTTPException, Response
-from typing import List
+from typing import List, Optional
 from fastapi.middleware.cors import CORSMiddleware
 from image import crop_image_with_coordinates
 from io import BytesIO
@@ -9,7 +9,7 @@ app = FastAPI()
 
 images = []
 
-origins = ["http://localhost:5173", "http://127.0.0.1:5173"]
+origins = ["http://localhost:5173", "http://localhost:5174", "http://127.0.0.1:5173"]
 
 
 app.add_middleware(
@@ -21,20 +21,19 @@ app.add_middleware(
 )
 
 @app.post("/")
-async def add_image(file: UploadFile = File(...), fileName: str = Form(...), coordinates: List[str] = Form(...), angle: float = Form(...)):
+async def add_image(file: UploadFile = File(...), fileName: str = Form(...), coordinates: Optional[List[str]] = Form([]), angle: Optional[float] = Form(0.0)):
     try:
         ext = fileName.split('.')[-1].lower()
-        coordinates = json.loads(coordinates) 
         if coordinates:
-            x = [coords[0] for coords in coordinates]
-            y = [py[1] for coords in coordinates]
-
-            x1, x2 = min(x), max(x)
-            y1, y2 = min(y), max(y)
-            
-        output_image = crop_image_with_coordinates((x1, y1, x2, y2), angle, file, ext)
+            coordinates = json.loads(coordinates) 
+        output_image = crop_image_with_coordinates(file, ext, angle, coordinates)
         images.append(fileName)
-        return Response(content=output_image, media_type=f"image/{ext}", headers={"Content-Disposition": "attachment"})
+        return Response(
+            content=output_image,
+            media_type=f"image/{ext}",
+            headers={"Content-Disposition": f"attachment; filename={fileName}"}
+        )
+
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     

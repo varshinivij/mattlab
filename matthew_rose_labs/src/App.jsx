@@ -35,16 +35,18 @@ function App() {
 
   async function postFileRequest() {
     const formData = new FormData();
-    formData.append("coordinates", JSON.stringify(coordinates));
-    formData.append("angle", angle);
-    formData.append("fileName", fileName);
     formData.append("file", file);
+    formData.append("fileName", fileName || file.name); //lets see if this works
+
+    coordinates && formData.append("coordinates", JSON.stringify(coordinates));
+    angle && formData.append("angle", angle);
+
     api.post('/', formData, {responseType:'blob'}) 
       .then((response) => {
         setBlobURL(URL.createObjectURL(response.data));
         setFileStatus('File Uploaded Successfully')
       })
-      .catch(error => setFileStatus(`Error Encountered: ${error.message}`));
+      .catch(error => setFileStatus(`Error Encountered: ${error}`));
   }
 
   function clear() {
@@ -122,8 +124,8 @@ function App() {
         <input
           type='text'
           value={fileName || ''}
-          onChange={(e) => setFileName(e.target.value)} 
-          onBlur={(e) => handleFileName(e.target.value)}
+          onChange={(e) => setFileName(e.target.value)}
+          onBlur={(e) => handleFileName(e.target.value)} //onblur --> object loses interaction 
         />
 
         <div>
