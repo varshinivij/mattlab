@@ -21,19 +21,19 @@ app.add_middleware(
 )
 
 @app.post("/")
-async def add_image(file: UploadFile = File(...), fileName: str = Form(...), coordinates: Optional[List[str]] = Form([]), angle: Optional[float] = Form(0.0)):
+async def add_image(file: UploadFile = File(...), fileName: str = Form(...), coordinates: Optional[str] = Form(default=None), angle: Optional[float] = Form(default=None)):
     try:
         ext = fileName.split('.')[-1].lower()
         if ext == "jpg":
             ext = "JPEG"
-            
+
         if coordinates:
             coordinates = json.loads(coordinates) 
         output_image = crop_image_with_coordinates(file, ext, angle, coordinates)
         images.append(fileName)
         return Response(
             content=output_image,
-            media_type=f"image/{ext}",
+            media_type=f"image/{ext.lower()}",
             headers={"Content-Disposition": f"attachment; filename={fileName}"}
         )
 

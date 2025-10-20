@@ -22,7 +22,6 @@ function App() {
   const [blobURL, setBlobURL] = useState(null);
   const [coordinates, setCoordinates] = useState([]);
 
-  // NEW: Add ref to track the img element
   const imgRef = useRef(null);
 
   useEffect(() => {
@@ -54,6 +53,7 @@ function App() {
       ]);
       
       formData.append("coordinates", JSON.stringify(scaledCoordinates));
+      
     } else if (coordinates && coordinates.length > 0) {
       formData.append("coordinates", JSON.stringify(coordinates));
     }
