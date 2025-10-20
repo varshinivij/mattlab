@@ -40,7 +40,7 @@ function App() {
   async function postFileRequest() {
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("fileName", fileName || file.name);
+    formData.append("fileName", fileName);
 
     // MODIFIED: Scale coordinates before sending to backend
     if (coordinates && coordinates.length > 0 && imgRef.current) {
@@ -53,7 +53,7 @@ function App() {
       ]);
       
       formData.append("coordinates", JSON.stringify(scaledCoordinates));
-      
+
     } else if (coordinates && coordinates.length > 0) {
       formData.append("coordinates", JSON.stringify(coordinates));
     }
@@ -107,14 +107,14 @@ function App() {
         return;
       }
       setFile(file);
-      setFileName(file.name);
-      setFileNameStatus('Default');
     } else {
       setFileStatus("Error: Empty file");
     }
   }
 
   const handleFileName = (name) => {
+    file && setFileName(file.name);
+    setFileNameStatus('Default');
     if (name) {
       if (!allowedFiles.some(ext => name.toLowerCase().endsWith(ext))) {
         setFileNameStatus("Error: Extension must be PNG, JPEG or JPG");
@@ -125,10 +125,8 @@ function App() {
       }
       setFileName(name);
       setFileNameStatus('Valid');
-    } else {
-      setFileNameStatus("Error: Empty Name");
     }
-  }
+}
 
   return (
     <div>
@@ -144,7 +142,7 @@ function App() {
         <input
           type='text'
           value={fileName || ''}
-          onChange={(e) => setFileName(e.target.value)}
+          onChange={(e) => setFileName(e.target.value)} 
           onBlur={(e) => handleFileName(e.target.value)} //onblur --> object loses interaction 
         />
 
@@ -159,7 +157,7 @@ function App() {
 
       <button
         type="submit"
-        disabled={!file || !fileName || fileNameStatus?.startsWith('Error')}
+        disabled={!file || fileNameStatus?.startsWith('Error')}
         onClick={() => postFileRequest()}>
         Submit
       </button>
@@ -185,8 +183,8 @@ function App() {
             key={index}
             style={{
               position: 'absolute',
-              width: '4px',
-              height: '4px',
+              width: '8px',
+              height: '8px',
               backgroundColor: 'red',
               borderRadius: '50%',
               top: y,
