@@ -6,7 +6,7 @@
 // https://medium.com/@marcnealer/a-practical-guide-to-using-pydantic-8aafa7feebf6
 
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import api from './api';
 const allowedFiles = ['.jpeg', '.jpg', '.png'];
 const invalidCharsList = ["<", ">", ":", "\"", "/", "\\", "|", "?", "*"];
@@ -20,25 +20,44 @@ function App() {
   const [angle, setAngle] = useState(0.0); 
   
   const [blobURL, setBlobURL] = useState(null);
-  const [coordinates, setCoordinates] = useState();
+  const [coordinates, setCoordinates] = useState([]);
+
+  // NEW: Add ref to track the img element
+  const imgRef = useRef(null);
 
   useEffect(() => {
     if (!file) return;
-    const url = URL.createObjectURL(file);
-    setFileURL(url);
-    setCoordinates([]);
+
+    const fileURL = URL.createObjectURL(file);
+    setFileURL(fileURL);
+
     return () => {
-      setFileURL(null);
-      URL.revokeObjectURL(url);
-    }
+      URL.revokeObjectURL(fileURL);
+      URL.revokeObjectURL(blobURL); //need to check this --> may or may not apply
+    };
   }, [file]);
+
 
   async function postFileRequest() {
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("fileName", fileName || file.name); //lets see if this works
+    formData.append("fileName", fileName || file.name);
 
-    coordinates && formData.append("coordinates", JSON.stringify(coordinates));
+    // MODIFIED: Scale coordinates before sending to backend
+    if (coordinates && coordinates.length > 0 && imgRef.current) {
+      const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
+      const scaleY = imgRef.current.naturalHeight / imgRef.current.height;
+      
+      const scaledCoordinates = coordinates.map(([x, y]) => [
+        Math.round(x * scaleX),
+        Math.round(y * scaleY)
+      ]);
+      
+      formData.append("coordinates", JSON.stringify(scaledCoordinates));
+    } else if (coordinates && coordinates.length > 0) {
+      formData.append("coordinates", JSON.stringify(coordinates));
+    }
+    
     angle && formData.append("angle", angle);
 
     api.post('/', formData, {responseType:'blob'}) 
@@ -55,6 +74,7 @@ function App() {
     setFileName(null);
     setFileNameStatus(null);
     setAngle(0.0);
+    setCoordinates([]);
     if (fileURL) {
       URL.revokeObjectURL(fileURL);
       URL.revokeObjectURL(blobURL);
@@ -151,7 +171,9 @@ function App() {
 
     {fileURL && (
       <div style={{ position: 'relative', display: 'inline-block' }}>
+        {/* MODIFIED: Added ref={imgRef} */}
         <img
+          ref={imgRef}
           src={fileURL}
           alt="Preview"
           useMap="#cropmap"
