@@ -23,6 +23,12 @@ function App() {
   const [coordinates, setCoordinates] = useState([]);
 
   const imgRef = useRef(null);
+  const contextRef = useRef(null);
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const context = canvasRef.current.getContext("2d");
+  }, []);
 
   useEffect(() => {
     if (!file) return;
@@ -35,6 +41,26 @@ function App() {
       URL.revokeObjectURL(blobURL); //need to check this --> may or may not apply
     };
   }, [file]);
+
+  const startPath = (e) => {
+    const {offsetX, offsetY} = e;
+    contextRef.current.startPath();
+    contextRef.current.moveTo(offsetX, offsetY);
+    contextRef.current.lineTo(offsetX, offsetY);
+    contextRef.current.stroke();
+    e.preventDefault();
+  }
+
+  const draw = (e) => {
+    contextRef.current.lineTo(offsetX, offsetY);
+    contextRef.current.stroke();
+    e.preventDefault();
+  }
+
+  const closePath = () => {
+    contextRef.current.closePath();
+  }
+
 
 
   async function postFileRequest() {
@@ -178,6 +204,15 @@ function App() {
           style={{ maxWidth: '300px', marginTop: '10px', cursor: 'pointer' }}
           onClick={handleCoordinateSelection}
         />
+        <canvas 
+          ref={canvasRef} 
+          onMouseDown={startPath} 
+          onMouseMove={draw} 
+          onMouseUp={closePath}
+        >
+          
+        </canvas>
+
         {coordinates.map(([x, y], index) => (
           <div
             key={index}
@@ -211,3 +246,9 @@ function App() {
 }
 
 export default App;
+
+
+/* In order to draw on a canvas
+We need to use the canvas api and create a ref object to easily access it without re-render
+Canvas: Physical whiteboard
+Context: Paintbrush  */
