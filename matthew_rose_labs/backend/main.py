@@ -40,6 +40,7 @@ async def add_image(file: UploadFile = File(...), fileName: str = Form(...), coo
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     
+    
 @app.get("/")
 def view_images(limit: int = 10):
     return images[:limit]
