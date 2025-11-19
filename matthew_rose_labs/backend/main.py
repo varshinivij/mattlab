@@ -1,7 +1,7 @@
 from fastapi import FastAPI, File, Form, UploadFile, HTTPException, Response
 from typing import List, Optional
 from fastapi.middleware.cors import CORSMiddleware
-from image import crop_image_with_coordinates
+from freeformimage import crop_image_with_coordinates
 from io import BytesIO
 import json
 
@@ -25,7 +25,7 @@ async def add_image(file: UploadFile = File(...), fileName: str = Form(...), coo
     try:
         ext = fileName.split('.')[-1].lower()
         if ext == "jpg":
-            ext = "JPEG"
+            ext = "jpeg"
 
         if coordinates:
             coordinates = json.loads(coordinates) 

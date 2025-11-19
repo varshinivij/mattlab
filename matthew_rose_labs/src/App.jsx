@@ -1,9 +1,7 @@
-// ============================================
-// FILE 1: App.jsx
-// ============================================
-
 import React, { useState, useEffect, useRef } from 'react';
 import api from './api';
+import PolygonDrawer from './PolygonDrawer';
+
 const allowedFiles = ['.jpeg', '.jpg', '.png'];
 const invalidCharsList = ["<", ">", ":", "\"", "/", "\\", "|", "?", "*"];
 
@@ -19,17 +17,6 @@ function App() {
   const [coordinates, setCoordinates] = useState([]);
 
   const imgRef = useRef(null);
-  const contextRef = useRef(null);
-  const canvasRef = useRef(null);
-
-  useEffect(() => {
-    if (canvasRef.current) {
-      const context = canvasRef.current.getContext("2d");
-      contextRef.current = context;
-      context.strokeStyle = 'red';
-      context.lineWidth = 2;
-    }
-  }, [fileURL]);
 
   useEffect(() => {
     if (!file) return;
@@ -42,30 +29,6 @@ function App() {
       if (blobURL) URL.revokeObjectURL(blobURL);
     };
   }, [file]);
-
-  const startPath = (e) => {
-    if (!contextRef.current) return;
-    const {offsetX, offsetY} = e;
-    contextRef.current.beginPath();
-    contextRef.current.moveTo(offsetX, offsetY);
-    contextRef.current.lineTo(offsetX, offsetY);
-    contextRef.current.stroke();
-    e.preventDefault();
-  }
-
-  const draw = (e) => {
-    if (!contextRef.current || e.buttons !== 1) return;
-    const {offsetX, offsetY} = e;
-    contextRef.current.lineTo(offsetX, offsetY);
-    contextRef.current.stroke();
-    e.preventDefault();
-  }
-
-  const closePath = () => {
-    if (contextRef.current) {
-      contextRef.current.closePath();
-    }
-  }
 
   async function postFileRequest() {
     const formData = new FormData();
@@ -111,20 +74,6 @@ function App() {
       URL.revokeObjectURL(blobURL);
       setBlobURL(null);
     }
-    if (canvasRef.current) {
-      const ctx = canvasRef.current.getContext('2d');
-      ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-    }
-  }
-  
-  const handleCoordinateSelection = (e) => {
-    if (e) {
-      e.preventDefault();
-      const rec = e.target.getBoundingClientRect()
-      const x = e.clientX - rec.left;
-      const y = e.clientY - rec.top;
-      setCoordinates((prev) => [...prev, [x, y]]);
-    }
   }
 
   const handleFileUpload = (e) => {
@@ -141,6 +90,7 @@ function App() {
         return;
       }
       setFile(file);
+      setCoordinates([]);
     } else {
       setFileStatus("Error: Empty file");
     }
@@ -201,46 +151,31 @@ function App() {
       </button>
 
       {fileURL && (
-        <div style={{ position: 'relative', display: 'inline-block' }}>
+        <div style={{ 
+          position: 'relative', 
+          display: 'inline-block',
+          margin: '20px 0 0 0',
+          padding: '0'
+        }}>
           <img
             ref={imgRef}
             src={fileURL}
             alt="Preview"
-            style={{ maxWidth: '300px', marginTop: '10px', cursor: 'pointer', display: 'block' }}
-            onClick={handleCoordinateSelection}
-          />
-          <canvas 
-            ref={canvasRef}
-            width={imgRef.current?.width || 300}
-            height={imgRef.current?.height || 300}
-            style={{
-              position: 'absolute',
-              top: '10px',
-              left: 0,
-              pointerEvents: 'all',
-              cursor: 'crosshair'
+            style={{ 
+              maxWidth: '300px',
+              maxHeight: '300px',
+              width: 'auto',
+              height: 'auto',
+              display: 'block',
+              margin: '0',
+              animation: 'none'
             }}
-            onMouseDown={startPath} 
-            onMouseMove={draw} 
-            onMouseUp={closePath}
           />
-
-          {coordinates.map(([x, y], index) => (
-            <div
-              key={index}
-              style={{
-                position: 'absolute',
-                width: '8px',
-                height: '8px',
-                backgroundColor: 'red',
-                borderRadius: '50%',
-                top: y + 10,
-                left: x,
-                pointerEvents: 'none',
-                transform: 'translate(-50%, -50%)'
-              }}
-            />
-          ))}
+          <PolygonDrawer 
+            imageUrl={fileURL}
+            imageRef={imgRef}
+            onCoordinatesChange={setCoordinates}
+          />
         </div>
       )}
 

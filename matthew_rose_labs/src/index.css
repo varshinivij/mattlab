@@ -179,9 +179,19 @@ img {
   }
 }
 
-/* Container styling */
-div {
-  position: relative;
+/* Image container styling - SPECIFIC CLASS */
+.image-canvas-container {
+  position: relative !important;
+  display: inline-block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.image-canvas-container img {
+  animation: none !important;
+  margin: 0 !important;
+  max-width: 300px !important;
+  max-height: 300px !important;
 }
 
 /* Terminal cursor effect */
