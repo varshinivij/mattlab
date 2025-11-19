@@ -2,10 +2,6 @@
 // FILE 1: App.jsx
 // ============================================
 
-// READD:
-// https://medium.com/@marcnealer/a-practical-guide-to-using-pydantic-8aafa7feebf6
-
-
 import React, { useState, useEffect, useRef } from 'react';
 import api from './api';
 const allowedFiles = ['.jpeg', '.jpg', '.png'];
@@ -27,8 +23,13 @@ function App() {
   const canvasRef = useRef(null);
 
   useEffect(() => {
-    const context = canvasRef.current.getContext("2d");
-  }, []);
+    if (canvasRef.current) {
+      const context = canvasRef.current.getContext("2d");
+      contextRef.current = context;
+      context.strokeStyle = 'red';
+      context.lineWidth = 2;
+    }
+  }, [fileURL]);
 
   useEffect(() => {
     if (!file) return;
@@ -38,13 +39,14 @@ function App() {
 
     return () => {
       URL.revokeObjectURL(fileURL);
-      URL.revokeObjectURL(blobURL); //need to check this --> may or may not apply
+      if (blobURL) URL.revokeObjectURL(blobURL);
     };
   }, [file]);
 
   const startPath = (e) => {
+    if (!contextRef.current) return;
     const {offsetX, offsetY} = e;
-    contextRef.current.startPath();
+    contextRef.current.beginPath();
     contextRef.current.moveTo(offsetX, offsetY);
     contextRef.current.lineTo(offsetX, offsetY);
     contextRef.current.stroke();
@@ -52,23 +54,24 @@ function App() {
   }
 
   const draw = (e) => {
+    if (!contextRef.current || e.buttons !== 1) return;
+    const {offsetX, offsetY} = e;
     contextRef.current.lineTo(offsetX, offsetY);
     contextRef.current.stroke();
     e.preventDefault();
   }
 
   const closePath = () => {
-    contextRef.current.closePath();
+    if (contextRef.current) {
+      contextRef.current.closePath();
+    }
   }
-
-
 
   async function postFileRequest() {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("fileName", fileName);
 
-    // MODIFIED: Scale coordinates before sending to backend
     if (coordinates && coordinates.length > 0 && imgRef.current) {
       const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
       const scaleY = imgRef.current.naturalHeight / imgRef.current.height;
@@ -79,12 +82,11 @@ function App() {
       ]);
       
       formData.append("coordinates", JSON.stringify(scaledCoordinates));
-
     } else if (coordinates && coordinates.length > 0) {
       formData.append("coordinates", JSON.stringify(coordinates));
     }
     
-    angle && formData.append("angle", angle);
+    if (angle) formData.append("angle", angle);
 
     api.post('/', formData, {responseType:'blob'}) 
       .then((response) => {
@@ -103,9 +105,15 @@ function App() {
     setCoordinates([]);
     if (fileURL) {
       URL.revokeObjectURL(fileURL);
-      URL.revokeObjectURL(blobURL);
       setFileURL(null);
+    }
+    if (blobURL) {
+      URL.revokeObjectURL(blobURL);
       setBlobURL(null);
+    }
+    if (canvasRef.current) {
+      const ctx = canvasRef.current.getContext('2d');
+      ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
     }
   }
   
@@ -139,8 +147,11 @@ function App() {
   }
 
   const handleFileName = (name) => {
-    file && setFileName(file.name);
-    setFileNameStatus('Default');
+    if (file && !name) {
+      setFileName(file.name);
+      setFileNameStatus('Default');
+      return;
+    }
     if (name) {
       if (!allowedFiles.some(ext => name.toLowerCase().endsWith(ext))) {
         setFileNameStatus("Error: Extension must be PNG, JPEG or JPG");
@@ -152,7 +163,7 @@ function App() {
       setFileName(name);
       setFileNameStatus('Valid');
     }
-}
+  }
 
   return (
     <div>
@@ -169,18 +180,15 @@ function App() {
           type='text'
           value={fileName || ''}
           onChange={(e) => setFileName(e.target.value)} 
-          onBlur={(e) => handleFileName(e.target.value)} //onblur --> object loses interaction 
+          onBlur={(e) => handleFileName(e.target.value)}
         />
 
         <div>
           <label>Enter Angle</label>
           <input type='text' onChange={(e) => setAngle(e.target.value)}/> 
-
         </div>
-        
       </div>
     
-
       <button
         type="submit"
         disabled={!file || fileNameStatus?.startsWith('Error')}
@@ -192,46 +200,49 @@ function App() {
         Clear
       </button>
 
-
-    {fileURL && (
-      <div style={{ position: 'relative', display: 'inline-block' }}>
-        {/* MODIFIED: Added ref={imgRef} */}
-        <img
-          ref={imgRef}
-          src={fileURL}
-          alt="Preview"
-          useMap="#cropmap"
-          style={{ maxWidth: '300px', marginTop: '10px', cursor: 'pointer' }}
-          onClick={handleCoordinateSelection}
-        />
-        <canvas 
-          ref={canvasRef} 
-          onMouseDown={startPath} 
-          onMouseMove={draw} 
-          onMouseUp={closePath}
-        >
-          
-        </canvas>
-
-        {coordinates.map(([x, y], index) => (
-          <div
-            key={index}
+      {fileURL && (
+        <div style={{ position: 'relative', display: 'inline-block' }}>
+          <img
+            ref={imgRef}
+            src={fileURL}
+            alt="Preview"
+            style={{ maxWidth: '300px', marginTop: '10px', cursor: 'pointer', display: 'block' }}
+            onClick={handleCoordinateSelection}
+          />
+          <canvas 
+            ref={canvasRef}
+            width={imgRef.current?.width || 300}
+            height={imgRef.current?.height || 300}
             style={{
               position: 'absolute',
-              width: '8px',
-              height: '8px',
-              backgroundColor: 'red',
-              borderRadius: '50%',
-              top: y,
-              left: x,
-              pointerEvents: 'none'
+              top: '10px',
+              left: 0,
+              pointerEvents: 'all',
+              cursor: 'crosshair'
             }}
+            onMouseDown={startPath} 
+            onMouseMove={draw} 
+            onMouseUp={closePath}
           />
-        ))}
-      </div>
-    )}
 
-  
+          {coordinates.map(([x, y], index) => (
+            <div
+              key={index}
+              style={{
+                position: 'absolute',
+                width: '8px',
+                height: '8px',
+                backgroundColor: 'red',
+                borderRadius: '50%',
+                top: y + 10,
+                left: x,
+                pointerEvents: 'none',
+                transform: 'translate(-50%, -50%)'
+              }}
+            />
+          ))}
+        </div>
+      )}
 
       {blobURL && (
         <a download={fileName} href={blobURL}> Download Output </a>
@@ -246,9 +257,3 @@ function App() {
 }
 
 export default App;
-
-
-/* In order to draw on a canvas
-We need to use the canvas api and create a ref object to easily access it without re-render
-Canvas: Physical whiteboard
-Context: Paintbrush  */
