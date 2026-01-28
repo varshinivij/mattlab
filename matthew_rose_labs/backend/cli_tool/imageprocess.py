@@ -9,7 +9,6 @@ def get_input(inpname, enabled):
     coordinates = []
 
     def on_mouse(event, x, y, flags, param):
-        """Mouse callback to collect points."""
         if event == cv.EVENT_LBUTTONDOWN:
             coordinates.append((x, y))
             print(f"Point added: {(x, y)}")
@@ -28,9 +27,7 @@ def get_input(inpname, enabled):
         key = cv.waitKey(1) & 0xFF
         if key == ord('q'):  # quit on 'q'
             break
-
-    cv.destroyAllWindows()
-
+    cv.destroyWindow("Image Window")
     angle = int(input("Enter angle to rotate image: "))
 
     if enabled:
@@ -39,17 +36,13 @@ def get_input(inpname, enabled):
             outname = os.path.basename(inpname)
     else:
         outname = os.path.basename(inpname)
-
     return coordinates, angle, outname
-
-    
 
 def main():
     """
-    Crops and rotates images in a directory.
+    Crops and rotates images in a directory, filling background with white.
     """
-    DIR_PATH = input("Enter full path to image directory: ")
-    DIR_PATH = DIR_PATH.strip()
+    DIR_PATH = input("Enter full path to image directory: ").strip()
     enabled = input("Do you want to change output file names? Press 0(NO) or 1(YES): ").strip() == "1"
 
     ext = input("Select output format (PNG or JPG): ").strip().lower()
@@ -80,11 +73,15 @@ def main():
                 y1, y2 = min(y), max(y)
                 img = img.crop((x1, y1, x2, y2))
 
-            # Rotate
-            img = img.rotate(float(angle), expand=True)
+            # Rotate and fill background with white
+            img = img.convert("RGBA")  # ensure alpha channel
+            rotated = img.rotate(float(angle), expand=True)
+            # Create white background
+            bg = Image.new("RGB", rotated.size, (255, 255, 255))
+            bg.paste(rotated, (0, 0), rotated)  # paste rotated image on white bg
 
             # Save
-            img.save(output_path, format=pil_format)
+            bg.save(output_path, format=pil_format)
             print(f"Saved: {output_path}")
 
         except FileNotFoundError:
