@@ -1,49 +1,55 @@
-from PIL import Image
-from pynput import mouse
+import cv2 as cv
 import os
-import time
+from PIL import Image
 
 def get_input(inpname, enabled):
     """
-    Get crop coordinates by clicking on image, rotation angle, and output filename.
+    Display image, collect crop coordinates via mouse clicks, rotation angle, and output filename.
     """
     coordinates = []
-    last_click_time = [time.time()]  # mutable to track inside nested function
 
-    def on_click(x, y, button, pressed):
-        """Called on mouse click."""
-        if pressed:
+    def on_mouse(event, x, y, flags, param):
+        """Mouse callback to collect points."""
+        if event == cv.EVENT_LBUTTONDOWN:
             coordinates.append((x, y))
-            last_click_time[0] = time.time()
+            print(f"Point added: {(x, y)}")
 
-    # Start mouse listener
-    listener = mouse.Listener(on_click=on_click)
-    listener.start()
+    # Read and show the image
+    img = cv.imread(inpname)
+    if img is None:
+        raise FileNotFoundError(f"Image not found: {inpname}")
 
-    print("Click on points to define crop area (finish by waiting 10 seconds)...")
+    cv.namedWindow("Image Window")
+    cv.setMouseCallback("Image Window", on_mouse)
+
+    print("Click on points to define crop area. Press 'q' to finish.")
     while True:
-        # stop after 10s of inactivity
-        if time.time() - last_click_time[0] > 10:
+        cv.imshow("Image Window", img)
+        key = cv.waitKey(1) & 0xFF
+        if key == ord('q'):  # quit on 'q'
             break
-        time.sleep(0.1)
-    listener.stop()
+
+    cv.destroyAllWindows()
 
     angle = int(input("Enter angle to rotate image: "))
 
     if enabled:
-        outname = input("Enter output file name (leave empty to overwrite): ")
-        if outname.strip() == "":
+        outname = input("Enter output file name (leave empty to overwrite): ").strip()
+        if not outname:
             outname = os.path.basename(inpname)
     else:
         outname = os.path.basename(inpname)
 
     return coordinates, angle, outname
 
+    
+
 def main():
     """
     Crops and rotates images in a directory.
     """
-    DIR_PATH = input("Enter full path to image directory: ").strip()
+    DIR_PATH = input("Enter full path to image directory: ")
+    DIR_PATH = DIR_PATH.strip()
     enabled = input("Do you want to change output file names? Press 0(NO) or 1(YES): ").strip() == "1"
 
     ext = input("Select output format (PNG or JPG): ").strip().lower()
