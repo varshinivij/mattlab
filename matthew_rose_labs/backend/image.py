@@ -7,14 +7,14 @@ def crop_image_with_coordinates(image_path, ext, angle, coordinates):
     """
     try:
         img = Image.open(image_path.file)
+        angle = angle if angle else 0
         if coordinates:
             x = [coords[0] for coords in coordinates]
             y = [coords[1] for coords in coordinates]
             x1, x2 = min(x), max(x)
             y1, y2 = min(y), max(y)
             img = img.crop((x1,y1,x2,y2)) 
-        if angle: 
-            img = img.rotate(float(angle), expand=True)
+        img = img.rotate(float(angle), expand=True)
 
         output_stream = BytesIO() #holds the memory as a temporary file 
         img.save(output_stream, format=ext)  

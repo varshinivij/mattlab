@@ -24,7 +24,7 @@ app.add_middleware(
 async def add_image(file: UploadFile = File(...), fileName: str = Form(...), coordinates: Optional[str] = Form(default=None), angle: Optional[float] = Form(default=None)):
     try:
         ext = fileName.split('.')[-1].lower()
-        if ext == "jpg":
+        if ext in ["jpg", "png"]:
             ext = "jpeg"
 
         if coordinates:
