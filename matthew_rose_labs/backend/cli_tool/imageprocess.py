@@ -2,6 +2,12 @@ import cv2 as cv
 import os
 from PIL import Image
 
+#needs to be exported as png 
+#layer images with a neg bg ??
+#REMOVE BACKGROUND ALTOGETHER! or giving them an option 
+#need to have an appended ending to each file 
+#try to allow multiple regions into one file
+ 
 def get_input(inpname, enabled):
     """
     Display image, collect crop coordinates via mouse clicks, rotation angle, and output filename.
@@ -42,6 +48,7 @@ def main():
     """
     Crops and rotates images in a directory, filling background with white.
     """
+    #change this to make sure coordinates are saved, and they dont need to reenter!!!!!!
     DIR_PATH = input("Enter full path to image directory: ").strip()
     enabled = input("Do you want to change output file names? Press 0(NO) or 1(YES): ").strip() == "1"
 
