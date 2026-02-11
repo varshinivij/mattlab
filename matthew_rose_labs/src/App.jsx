@@ -33,6 +33,9 @@ function App() {
   // Background options
   const [transparent, setTransparent] = useState(false);
   const [bgColor, setBgColor] = useState('255,255,255');
+  
+  // ZIP filename for multiple regions
+  const [zipFileName, setZipFileName] = useState('');
 
   const [zoom, setZoom] = useState(1);
 
@@ -110,6 +113,7 @@ function App() {
     setTransparent(false);
     setBgColor('255,255,255');
     setIsZipFile(false);
+    setZipFileName('');
 
     if (fileURL) {
       URL.revokeObjectURL(fileURL);
@@ -136,6 +140,8 @@ function App() {
       setFile(file);
       setRegions([]);
       setZoom(1);
+      setBlobURL(null);
+      setFileStatus('Image loaded. Define crop regions below.');
     } else {
       setFileStatus("Error: Empty file");
     }
@@ -143,14 +149,12 @@ function App() {
 
   const handleFileName = (name) => {
     if (file && !name) {
-      // Default to original name
       const baseName = file.name.replace(/\.[^/.]+$/, '');
       setFileName(`${baseName}_cropped`);
       setFileNameStatus('Default');
       return;
     }
     if (name) {
-      // Only check for invalid characters
       if (invalidCharsList.some(char => name.includes(char))) {
         setFileNameStatus("Error: Invalid Characters");
         return;
@@ -242,26 +246,52 @@ function App() {
         </div>
       </div>
 
-      <div style={{ marginTop: '20px' }}>
-        <button
-          type="submit"
-          disabled={!file || fileNameStatus?.startsWith('Error')}
-          onClick={postFileRequest}
-          style={{ marginRight: '10px' }}
-        >
-          Process Image
-        </button>
-
-        <button type="button" onClick={clear}>
-          Clear All
-        </button>
-      </div>
-
       {fileURL && (
-        <div style={{ marginTop: '20px' }}>
-          <p style={{ color: '#00ff41', marginBottom: '10px' }}>
-            Click on the image to define crop regions. Create multiple regions by clicking "Finish Region" then starting a new one.
-          </p>
+        <div style={{ marginTop: '30px', border: '2px solid #00ff41', padding: '20px', borderRadius: '8px' }}>
+          <div style={{ 
+            backgroundColor: '#1a4d1a', 
+            padding: '15px', 
+            borderRadius: '5px', 
+            marginBottom: '20px',
+            border: '1px solid #00ff41'
+          }}>
+            <h3 style={{ margin: '0 0 10px 0', color: '#00ff41' }}>✂️ Multi-Region Crop Mode</h3>
+            <p style={{ margin: '0', color: '#00ff41', fontSize: '14px' }}>
+              <strong>Step 1:</strong> Click on the image to define points for a crop region<br/>
+              <strong>Step 2:</strong> Click "✓ Finish Region" to save it<br/>
+              <strong>Step 3:</strong> Repeat to add more regions, or click "Process Image" when done
+            </p>
+            {regions.length > 0 && (
+              <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#0a2a0a', borderRadius: '4px' }}>
+                <strong>📦 {regions.length} region(s) saved</strong>
+                {regions.length > 1 && <span> - Will create ZIP file with all regions</span>}
+              </div>
+            )}
+            {regions.length > 1 && (
+              <div style={{ marginTop: '15px' }}>
+                <label style={{ display: 'block', marginBottom: '5px', color: '#00ff41' }}>
+                  [OPTIONAL] ZIP Filename:
+                </label>
+                <input
+                  type='text'
+                  value={zipFileName}
+                  onChange={(e) => setZipFileName(e.target.value)}
+                  placeholder={`${(fileName || file.name).replace(/\.[^/.]+$/, '')}_regions`}
+                  style={{
+                    padding: '8px',
+                    backgroundColor: '#0a0a0a',
+                    color: '#00ff41',
+                    border: '1px solid #00ff41',
+                    borderRadius: '4px',
+                    width: '250px'
+                  }}
+                />
+                <small style={{ display: 'block', marginTop: '5px', color: '#888' }}>
+                  Default: {(fileName || file.name).replace(/\.[^/.]+$/, '')}_regions.zip
+                </small>
+              </div>
+            )}
+          </div>
           
           {/* Zoom controls */}
           <div style={{ marginBottom: '10px' }}>
@@ -299,13 +329,53 @@ function App() {
               onRegionsChange={setRegions}
             />
           </div>
+
+          {/* Action Buttons - Moved after image */}
+          <div style={{ marginTop: '30px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+            <button
+              type="submit"
+              disabled={!file || fileNameStatus?.startsWith('Error')}
+              onClick={postFileRequest}
+              style={{
+                padding: '12px 30px',
+                fontSize: '16px',
+                fontWeight: 'bold',
+                backgroundColor: regions.length > 0 ? '#1a4d1a' : '#4d4d4d',
+                color: '#00ff41',
+                border: '2px solid #00ff41',
+                borderRadius: '6px',
+                cursor: !file || fileNameStatus?.startsWith('Error') ? 'not-allowed' : 'pointer',
+                opacity: !file || fileNameStatus?.startsWith('Error') ? 0.5 : 1
+              }}
+            >
+              {regions.length > 0 ? `🚀 Process ${regions.length} Region(s)` : '🚀 Process Image'}
+            </button>
+
+            <button 
+              type="button" 
+              onClick={clear}
+              style={{
+                padding: '12px 30px',
+                fontSize: '16px',
+                backgroundColor: '#4d1a1a',
+                color: '#ff4141',
+                border: '2px solid #ff4141',
+                borderRadius: '6px',
+                cursor: 'pointer'
+              }}
+            >
+              🗑 Clear All
+            </button>
+          </div>
         </div>
       )}
 
       {blobURL && (
         <div style={{ marginTop: '20px' }}>
           <a 
-            download={isZipFile ? `${(fileName || file.name).replace(/\.[^/.]+$/, '')}_regions.zip` : `${(fileName || file.name).replace(/\.[^/.]+$/, '')}_cropped.png`}
+            download={isZipFile 
+              ? `${zipFileName || (fileName || file.name).replace(/\.[^/.]+$/, '')}_regions.zip` 
+              : `${(fileName || file.name).replace(/\.[^/.]+$/, '')}_cropped.png`}
             href={blobURL}
             style={{
               display: 'inline-block',

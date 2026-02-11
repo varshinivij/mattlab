@@ -1,17 +1,29 @@
 import cv2 as cv
 import numpy as np
 import os
+import json
 from PIL import Image, ImageDraw
 
 
-def get_regions(inpname):
+def get_regions(inpname, use_saved_coords=None):
     """
     Display image and collect multiple crop regions via mouse clicks.
     Press 'n' to start a new region, 'q' to finish all regions.
-    Returns list of regions (each region is a list of coordinates).
+
+    Args:
+        inpname: Path to image file
+        use_saved_coords: If provided, use these coordinates instead of collecting new ones
+
+    Returns:
+        List of regions (each region is a list of coordinates)
     """
     regions = []
     current_coordinates = []
+
+    # If saved coordinates provided, return them immediately
+    if use_saved_coords is not None:
+        print(f"Using saved coordinates: {len(use_saved_coords)} region(s)")
+        return use_saved_coords
 
     def on_mouse(event, x, y, flags, param):
         nonlocal current_coordinates
@@ -139,15 +151,46 @@ def process_region(img, coordinates, angle, transparent, bg_color):
     return masked_img
 
 
+def save_coordinates(coordinates, save_path):
+    """Save coordinates to a JSON file."""
+    coords_file = os.path.join(save_path, ".saved_coordinates.json")
+    with open(coords_file, "w") as f:
+        json.dump(coordinates, f)
+    print(f"\n💾 Coordinates saved to: {coords_file}")
+
+
+def load_coordinates(load_path):
+    """Load coordinates from a JSON file."""
+    coords_file = os.path.join(load_path, ".saved_coordinates.json")
+    if os.path.exists(coords_file):
+        with open(coords_file, "r") as f:
+            coords = json.load(f)
+        return coords
+    return None
+
+
 def main():
     """
     Crops multiple regions from images with optional transparency and custom background.
     All outputs are saved as PNG.
+    Supports coordinate memory for batch processing.
     """
     print("\n=== Image Processor ===")
-    print("Exports all images as PNG format\n")
+    print("Exports all images as PNG format")
+    print("Supports coordinate memory for batch processing\n")
 
     DIR_PATH = input("Enter full path to image directory: ").strip()
+
+    # Check for saved coordinates
+    saved_coords = load_coordinates(DIR_PATH)
+    use_saved = False
+
+    if saved_coords:
+        print(f"\n📂 Found saved coordinates with {len(saved_coords)} region(s)")
+        print("1. Use saved coordinates for all images")
+        print("2. Define new coordinates (will overwrite saved)")
+        coord_choice = input("Select option (1 or 2): ").strip()
+        use_saved = coord_choice == "1"
 
     # Get background preference
     print("\nBackground options:")
@@ -219,6 +262,10 @@ def main():
 
     print(f"\nFound {len(image_files)} image(s) to process")
 
+    # Store coordinates from first image to reuse
+    shared_regions = None
+    first_image_processed = False
+
     for img_name in image_files:
         image_path = os.path.join(DIR_PATH, img_name)
 
@@ -226,11 +273,48 @@ def main():
             print(f"\n--- Processing: {img_name} ---")
             img = Image.open(image_path)
 
-            # Get multiple regions from user
-            regions = get_regions(image_path)
+            # Get regions - use saved coords or collect new ones
+            if use_saved and saved_coords:
+                regions = saved_coords
+            elif shared_regions is not None:
+                # Reuse coordinates from first image
+                regions = shared_regions
+                print(f"Using coordinates from first image: {len(regions)} region(s)")
+            else:
+                # Collect new regions
+                regions = get_regions(image_path)
+
+                if not regions:
+                    print("No regions selected. Skipping...")
+                    continue
+
+                # Save these coordinates for subsequent images
+                shared_regions = regions
+                first_image_processed = True
+
+                # Ask if user wants to save coordinates
+                if len(image_files) > 1:
+                    print(
+                        f"\n⚠️  IMPORTANT: You have {len(image_files)} images in this folder."
+                    )
+                    print(
+                        f"These {len(regions)} region(s) will be applied to ALL {len(image_files)} images."
+                    )
+                    save_choice = (
+                        input(
+                            "Apply these coordinates to all images and save for future use? (y/n): "
+                        )
+                        .strip()
+                        .lower()
+                    )
+                    if save_choice == "y":
+                        save_coordinates(regions, DIR_PATH)
+                        print(
+                            f"✅ Coordinates will be applied to all remaining {len(image_files) - 1} image(s)"
+                        )
 
             if not regions:
-                print("No regions selected. Skipping...")
+                print("No regions to process. Skipping...")
                 continue
 
             # Process each region
@@ -269,6 +353,8 @@ def main():
             print(f"An error occurred with {img_name}: {e}")
 
     print("\n=== Processing Complete ===")
+    if shared_regions and len(image_files) > 1:
+        print(f"All images processed with the same {len(shared_regions)} region(s)")
 
 
 if __name__ == "__main__":
